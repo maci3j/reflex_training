@@ -17,9 +17,6 @@ namespace reflex_training
         {
             InitializeComponent();
             this.WindowState = FormWindowState.Maximized;
-            SetStyle(ControlStyles.OptimizedDoubleBuffer, true);
-            SetStyle(ControlStyles.AllPaintingInWmPaint, true);
-            SetStyle(ControlStyles.UserPaint, true);
             Program.Debug(LogLevel.Error, "Window size: {0}x{1}", Width, Height);
             Program.Debug(LogLevel.Error, "Board size: {0}x{1}", main_board.Width, main_board.Height);
         }
@@ -31,37 +28,28 @@ namespace reflex_training
 
         private void main_board_Paint_1(object sender, PaintEventArgs e)
         {
+            Program.game.TargetsMutex.WaitOne();
             foreach (Target t in Program.game.GetTargets())
             {
                 Graphics g = main_board.CreateGraphics();
                 SolidBrush sb = new SolidBrush(Color.Red);
                 Pen p = new Pen(Color.Transparent);
-                g.DrawEllipse(p, t.x, t.y, t.GetSize(), t.GetSize());
-                g.FillEllipse(sb, t.x, t.y, t.GetSize(), t.GetSize());
+                Program.Debug(LogLevel.Verbose, "Drawing at {0}, {1}, size:{2}", t.x, t.y, Convert.ToInt32(t.GetSize()));
+                g.DrawEllipse(p, t.x, t.y, Convert.ToInt32(t.GetSize()), Convert.ToInt32(t.GetSize()));
+                g.FillEllipse(sb, t.x, t.y, Convert.ToInt32(t.GetSize()), Convert.ToInt32(t.GetSize()));
             }
+            Program.game.TargetsMutex.ReleaseMutex();
             hit_text.Text = String.Format("Trafienia: {0}", Program.game.GetHits());
             miss_text.Text = String.Format("Chybienia: {0}", Program.game.GetMisses());
             accuracy_text.Text = String.Format("Celność: {0}%", (Program.game.GetHits() != 0 || Program.game.GetMisses() != 0) ? 100*Program.game.GetHits()/(Program.game.GetHits()+Program.game.GetMisses()) : 0);
+            ticktime_text.Text = String.Format("{0}ms", Program.game.ticktime.Milliseconds);
+            fps_text.Text = String.Format("{0}fps", Program.game.Fps);
+            time_text.Text = String.Format("Czas: {0}", Program.game.ElapsedTime.ToString(@"mm\:ss"));
         }
 
         private void main_board_MouseDown(object sender, MouseEventArgs e)
         {
-            if (Program.game.State()) // click should be registered only when game is running
-            {
-                Program.Debug(LogLevel.Info, "Click: {0}, {1}", e.X, e.Y);
-                foreach (Target t in Program.game.GetTargets())
-                {
-                    Program.Debug(LogLevel.Info, "Hit: {0}", t.IsHit(e.X, e.Y));
-                    if (t.IsHit(e.X, e.Y))
-                    {
-                        Program.game.GetTargets().Remove(t);
-                        Program.game.AddHit();
-                        Program.game.AddTarget(true);
-                        return;
-                    }
-                }
-                Program.game.AddMiss();
-            }
+            Program.game.ClickHandler(e.X, e.Y);
         }
 
         public Size GetBoardSize()
@@ -83,16 +71,22 @@ namespace reflex_training
 
         private void pause_button_Click(object sender, EventArgs e)
         {
-            if (Program.game.State())
-            {
+            if (Program.game.Running())
                 Program.game.Pause();
-                Program.Debug(LogLevel.Error, "Game paused");
-            }
             else
-            {
                 Program.game.Start();
-                Program.Debug(LogLevel.Error, "Game started");
-            }
+        }
+
+        private void menu_button_Click(object sender, EventArgs e)
+        {
+            ShowMenu();
+        }
+
+        public void ShowMenu()
+        {
+            Menu menu = new Menu();
+            Program.game.Pause();
+            menu.ShowDialog();
         }
     }
 }

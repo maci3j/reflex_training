@@ -33,6 +33,10 @@
             this.miss_text = new System.Windows.Forms.Label();
             this.accuracy_text = new System.Windows.Forms.Label();
             this.pause_button = new System.Windows.Forms.Button();
+            this.ticktime_text = new System.Windows.Forms.Label();
+            this.menu_button = new System.Windows.Forms.Button();
+            this.fps_text = new System.Windows.Forms.Label();
+            this.time_text = new System.Windows.Forms.Label();
             this.SuspendLayout();
             // 
             // main_board
@@ -92,11 +96,58 @@
             this.pause_button.UseVisualStyleBackColor = true;
             this.pause_button.Click += new System.EventHandler(this.pause_button_Click);
             // 
+            // ticktime_text
+            // 
+            this.ticktime_text.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.ticktime_text.AutoSize = true;
+            this.ticktime_text.Location = new System.Drawing.Point(728, 423);
+            this.ticktime_text.Name = "ticktime_text";
+            this.ticktime_text.Size = new System.Drawing.Size(75, 15);
+            this.ticktime_text.TabIndex = 5;
+            this.ticktime_text.Text = "ticktime_text";
+            // 
+            // menu_button
+            // 
+            this.menu_button.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.menu_button.Location = new System.Drawing.Point(590, 412);
+            this.menu_button.Name = "menu_button";
+            this.menu_button.Size = new System.Drawing.Size(75, 23);
+            this.menu_button.TabIndex = 6;
+            this.menu_button.Text = "Menu";
+            this.menu_button.UseVisualStyleBackColor = true;
+            this.menu_button.Click += new System.EventHandler(this.menu_button_Click);
+            // 
+            // fps_text
+            // 
+            this.fps_text.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.fps_text.AutoSize = true;
+            this.fps_text.Location = new System.Drawing.Point(681, 423);
+            this.fps_text.Name = "fps_text";
+            this.fps_text.Size = new System.Drawing.Size(23, 15);
+            this.fps_text.TabIndex = 7;
+            this.fps_text.Text = "fps";
+            // 
+            // time_text
+            // 
+            this.time_text.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.time_text.AutoSize = true;
+            this.time_text.Font = new System.Drawing.Font("Microsoft Sans Serif", 15F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
+            this.time_text.Location = new System.Drawing.Point(585, 13);
+            this.time_text.Name = "time_text";
+            this.time_text.Size = new System.Drawing.Size(91, 29);
+            this.time_text.TabIndex = 8;
+            this.time_text.Text = "Czas: 0";
+            this.time_text.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            // 
             // GameForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(800, 450);
+            this.Controls.Add(this.time_text);
+            this.Controls.Add(this.fps_text);
+            this.Controls.Add(this.menu_button);
+            this.Controls.Add(this.ticktime_text);
             this.Controls.Add(this.pause_button);
             this.Controls.Add(this.accuracy_text);
             this.Controls.Add(this.miss_text);
@@ -118,6 +169,10 @@
         private System.Windows.Forms.Label miss_text;
         private System.Windows.Forms.Label accuracy_text;
         private System.Windows.Forms.Button pause_button;
+        private System.Windows.Forms.Label ticktime_text;
+        private System.Windows.Forms.Button menu_button;
+        private System.Windows.Forms.Label fps_text;
+        private System.Windows.Forms.Label time_text;
     }
 }
 

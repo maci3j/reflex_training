@@ -19,24 +19,24 @@ namespace reflex_training
     {
         public static Game game;
         public static GameForm gf;
+        static Thread GameThread;
         public static LogLevel LogLevel;
         static FileLogger fl;
+        public static GameType SelectedType;
         /// <summary>
-        /// Główny punkt wejścia dla aplikacji.
+        /// Application entry point.
         /// </summary>
         [STAThread]
         static void Main()
         {
-            fl = new FileLogger();
             LogLevel = LogLevel.Info;
-            game = new Game();
+
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
+
             gf = new GameForm();
-            Thread GameThread = new Thread(new ParameterizedThreadStart(game.GameLoop));
-            GameThread.IsBackground = true;
-            GameThread.Start(gf);
-            game.Start();
+            StartGame(new TimeSpan(0), false, false, 0, 0 , new TimeSpan(0));
+            gf.ShowMenu();
             Application.Run(gf);
         }
 
@@ -45,9 +45,27 @@ namespace reflex_training
         {
             if (level >= LogLevel)
             {
+                fl = new FileLogger();
                 Console.WriteLine(format, args);
                 Task.Run(() => fl.WriteData("log.txt", format, args));
             }
+        }
+
+        public static void StartGame(TimeSpan TimeToEnd, bool MovingTargets, bool ResizableTargets, int TargetLifetime, int StartingTargets, TimeSpan TargetAddTime)
+        {
+            if (GameThread != null)
+            {
+                if (GameThread.IsAlive)
+                {
+                    Program.Debug(LogLevel.Error, "GameThread aborted");
+                    GameThread.Abort();
+                }
+            }
+            game = new Game(SelectedType, TimeToEnd, MovingTargets, ResizableTargets, TargetLifetime, StartingTargets, TargetAddTime);
+            GameThread = new Thread(new ParameterizedThreadStart(game.GameLoop));
+            GameThread.IsBackground = true;
+            GameThread.Start(gf);
+            game.Start();
         }
     }
 }

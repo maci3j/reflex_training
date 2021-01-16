@@ -11,47 +11,80 @@ namespace reflex_training
         public int x { get; private set; }
         public int y { get; private set; }
         private int prev_x, prev_y;
-        int size;
-        int TimeToDestroy;
-        Boolean Moving;
+        double Size;
+        double FinalSize = 0;
+        double SizeDelta = 0; // change of object's size per tick
+        bool Moving;
+        bool Resizable;
+        Random rnd = new Random(Guid.NewGuid().GetHashCode());
+        
         public int Direction { get; private set; } // movement vector direction, in degrees
-        public int Speed { get; private set; } // speed of move, in pixels per one tick
+        public int Speed { get; private set; } // speed of move, in pixels per tick
         public int LifeTime { get; set; } // time, in ticks elapsed from target creation
+        public int TimeToDestroy { get; private set; } // how many ticks object should appear on board
 
 
-        public Target(bool Moving)
+        public Target(bool Moving, bool Resizable, int TimeToDestroy = 0)
         {
             this.Moving = Moving;
-            Random rnd = new Random();
+            this.TimeToDestroy = TimeToDestroy;
+
             do
             {
                 x = rnd.Next(Program.gf.GetBoardSize().Width);
             } while (x < 50 || x > Program.gf.GetBoardSize().Width - 50);
+
             do
             {
                 y = rnd.Next(Program.gf.GetBoardSize().Height);
-            } while (y < 50 || y > Program.gf.GetBoardSize().Height - 50);
+            } while ((y < 50 || y > Program.gf.GetBoardSize().Height - 50) && y == x);
+
             do
             {
-                size = rnd.Next(100);
-            } while (size < 25);
+                Size = Convert.ToInt32(rnd.Next(100));
+            } while (Size < 25);
 
             if (Moving)
             {
                 RandomizeSpeed();
                 RandomizeDirection();
             }
-            Program.Debug(LogLevel.Info, "Target: x:{0}, y:{1}, size:{2}, moving: {3}, speed: {4}, angle: {5}", x, y, size, this.Moving, Speed, Direction);
+
+            if (Resizable && TimeToDestroy > 0)
+            {
+                this.Resizable = Resizable;
+                do
+                {
+                    //FinalSize = Convert.ToInt32(rnd.Next(Convert.ToInt32(Size)));
+                    FinalSize = 20;
+                } while (FinalSize == Size);
+
+                SizeDelta = (Size - FinalSize) / TimeToDestroy;
+            }
+            Program.Debug(LogLevel.Info, "Target: x:{0}, y:{1}, size:{2}, moving: {3}, speed: {4}, angle: {5}, final size: {6}, time to destroy: {7}", x, y, Size, this.Moving, Speed, Direction, FinalSize, TimeToDestroy);
         }
 
-        public int GetSize()
+        public double GetSize()
         {
-            return size;
+            return Size;
         }
 
         public bool IsMoving()
         {
             return Moving;
+        }
+
+        public bool IsResizable()
+        {
+            return Resizable;
+        }
+
+        public void Resize()
+        {
+            if (Size > 20)
+            {
+                Size -= SizeDelta;
+            }
         }
 
         public void Move(int max_x, int max_y)
@@ -69,12 +102,12 @@ namespace reflex_training
 
         public void RandomizeDirection()
         {
-            Direction = new Random().Next(360);
+            Direction = rnd.Next(360);
         }
 
         public void RandomizeSpeed()
         {
-            Speed = new Random().Next(30);
+            Speed = rnd.Next(30);
         }
 
         public void CalculateCollision(int max_x, int max_y)
@@ -148,9 +181,14 @@ namespace reflex_training
 
         public bool IsHit(int x, int y)
         {
-            double x_center = this.x + (size / 2);
-            double y_center = this.y + (size / 2);
-            return Math.Sqrt((Math.Pow(x_center - x, 2) + Math.Pow(y_center - y, 2))) <= (size / 2);
+            double x_center = this.x + (Size / 2);
+            double y_center = this.y + (Size / 2);
+            return Math.Sqrt((Math.Pow(x_center - x, 2) + Math.Pow(y_center - y, 2))) <= (Size / 2);
+        }
+
+        public double CalculateDistance(int x, int y)
+        {
+            return Math.Sqrt(Math.Pow(this.x - x, 2) + Math.Pow(this.y - y, 2)) - Size / 2.0;
         }
     }
 }
