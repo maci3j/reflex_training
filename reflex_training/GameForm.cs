@@ -11,8 +11,14 @@ using System.Diagnostics;
 
 namespace reflex_training
 {
+    /// <summary>
+    /// GameForm definiton class.
+    /// </summary>
     public partial class GameForm : Form
     {
+        /// <summary>
+        /// GameForm constructor.
+        /// </summary>
         public GameForm()
         {
             InitializeComponent();
@@ -21,11 +27,19 @@ namespace reflex_training
             Program.Debug(LogLevel.Error, "Board size: {0}x{1}", main_board.Width, main_board.Height);
         }
 
+        /// <summary>
+        /// Updates the board.
+        /// </summary>
         public void UpdateBoard()
         {
             main_board.Refresh();
         }
 
+        /// <summary>
+        /// Handles drawing targets and GUI updates.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void main_board_Paint_1(object sender, PaintEventArgs e)
         {
             Program.game.TargetsMutex.WaitOne();
@@ -47,16 +61,30 @@ namespace reflex_training
             time_text.Text = String.Format("Czas: {0}", Program.game.ElapsedTime.ToString(@"mm\:ss"));
         }
 
+        /// <summary>
+        /// MouseDown action handler.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void main_board_MouseDown(object sender, MouseEventArgs e)
         {
             Program.game.ClickHandler(e.X, e.Y);
         }
 
+        /// <summary>
+        /// Returns board size.
+        /// </summary>
+        /// <returns>Board size</returns>
         public Size GetBoardSize()
         {
             return main_board.Size;
         }
 
+        /// <summary>
+        /// Handles game windows resize action.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void GameForm_Resize(object sender, EventArgs e)
         {
             main_board.Size = new Size(Width-250, Height-100);
@@ -64,11 +92,21 @@ namespace reflex_training
             Program.Debug(LogLevel.Error, "Board resized: {0}x{1}", main_board.Width, main_board.Height);
         }
 
+        /// <summary>
+        /// Handles game window close action.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void GameForm_FormClosing(object sender, FormClosingEventArgs e)
         {
             Environment.Exit(Environment.ExitCode);
         }
 
+        /// <summary>
+        /// Handles pause button click action.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void pause_button_Click(object sender, EventArgs e)
         {
             if (Program.game.Running())
@@ -77,11 +115,19 @@ namespace reflex_training
                 Program.game.Start();
         }
 
+        /// <summary>
+        /// Handles menu button click action.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void menu_button_Click(object sender, EventArgs e)
         {
             ShowMenu();
         }
 
+        /// <summary>
+        /// Method implementing menu show-up.
+        /// </summary>
         public void ShowMenu()
         {
             Menu menu = new Menu();

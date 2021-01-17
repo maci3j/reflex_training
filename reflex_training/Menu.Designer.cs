@@ -44,14 +44,17 @@ namespace reflex_training
             this.TargetsNumber_text = new System.Windows.Forms.Label();
             this.TargetLifetime_UpDown = new System.Windows.Forms.NumericUpDown();
             this.TargetLifetime_text = new System.Windows.Forms.Label();
+            this.TargetAddTime_text = new System.Windows.Forms.Label();
+            this.TargetAddTime_UpDown = new System.Windows.Forms.NumericUpDown();
             ((System.ComponentModel.ISupportInitialize)(this.RoundTime_UpDown)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.TargetsNumber_UpDown)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.TargetLifetime_UpDown)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.TargetAddTime_UpDown)).BeginInit();
             this.SuspendLayout();
             // 
             // newgame_button
             // 
-            this.newgame_button.Location = new System.Drawing.Point(12, 209);
+            this.newgame_button.Location = new System.Drawing.Point(12, 245);
             this.newgame_button.Name = "newgame_button";
             this.newgame_button.Size = new System.Drawing.Size(215, 23);
             this.newgame_button.TabIndex = 0;
@@ -61,7 +64,7 @@ namespace reflex_training
             // 
             // exit_button
             // 
-            this.exit_button.Location = new System.Drawing.Point(242, 209);
+            this.exit_button.Location = new System.Drawing.Point(242, 245);
             this.exit_button.Name = "exit_button";
             this.exit_button.Size = new System.Drawing.Size(213, 23);
             this.exit_button.TabIndex = 2;
@@ -95,6 +98,7 @@ namespace reflex_training
             // 
             this.GameType_desc.AutoSize = true;
             this.GameType_desc.Location = new System.Drawing.Point(254, 33);
+            this.GameType_desc.MaximumSize = new System.Drawing.Size(200, 0);
             this.GameType_desc.Name = "GameType_desc";
             this.GameType_desc.Size = new System.Drawing.Size(41, 15);
             this.GameType_desc.TabIndex = 5;
@@ -122,7 +126,7 @@ namespace reflex_training
             // 
             // RoundTime_UpDown
             // 
-            this.RoundTime_UpDown.Location = new System.Drawing.Point(191, 114);
+            this.RoundTime_UpDown.Location = new System.Drawing.Point(214, 114);
             this.RoundTime_UpDown.Name = "RoundTime_UpDown";
             this.RoundTime_UpDown.Size = new System.Drawing.Size(65, 20);
             this.RoundTime_UpDown.TabIndex = 8;
@@ -134,7 +138,7 @@ namespace reflex_training
             // 
             // TargetsNumber_UpDown
             // 
-            this.TargetsNumber_UpDown.Location = new System.Drawing.Point(191, 140);
+            this.TargetsNumber_UpDown.Location = new System.Drawing.Point(214, 140);
             this.TargetsNumber_UpDown.Name = "TargetsNumber_UpDown";
             this.TargetsNumber_UpDown.Size = new System.Drawing.Size(65, 20);
             this.TargetsNumber_UpDown.TabIndex = 9;
@@ -164,7 +168,7 @@ namespace reflex_training
             // 
             // TargetLifetime_UpDown
             // 
-            this.TargetLifetime_UpDown.Location = new System.Drawing.Point(191, 167);
+            this.TargetLifetime_UpDown.Location = new System.Drawing.Point(214, 167);
             this.TargetLifetime_UpDown.Name = "TargetLifetime_UpDown";
             this.TargetLifetime_UpDown.Size = new System.Drawing.Size(65, 20);
             this.TargetLifetime_UpDown.TabIndex = 12;
@@ -183,11 +187,34 @@ namespace reflex_training
             this.TargetLifetime_text.TabIndex = 13;
             this.TargetLifetime_text.Text = "Czas życia celu(sec)";
             // 
+            // TargetAddTime_text
+            // 
+            this.TargetAddTime_text.AutoSize = true;
+            this.TargetAddTime_text.Location = new System.Drawing.Point(15, 194);
+            this.TargetAddTime_text.Name = "TargetAddTime_text";
+            this.TargetAddTime_text.Size = new System.Drawing.Size(200, 15);
+            this.TargetAddTime_text.TabIndex = 14;
+            this.TargetAddTime_text.Text = "Czas tworzenia kolejnego celu(sec)";
+            // 
+            // TargetAddTime_UpDown
+            // 
+            this.TargetAddTime_UpDown.Location = new System.Drawing.Point(214, 194);
+            this.TargetAddTime_UpDown.Name = "TargetAddTime_UpDown";
+            this.TargetAddTime_UpDown.Size = new System.Drawing.Size(65, 20);
+            this.TargetAddTime_UpDown.TabIndex = 15;
+            this.TargetAddTime_UpDown.Value = new decimal(new int[] {
+            5,
+            0,
+            0,
+            0});
+            // 
             // Menu
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(467, 244);
+            this.ClientSize = new System.Drawing.Size(467, 280);
+            this.Controls.Add(this.TargetAddTime_UpDown);
+            this.Controls.Add(this.TargetAddTime_text);
             this.Controls.Add(this.TargetLifetime_text);
             this.Controls.Add(this.TargetLifetime_UpDown);
             this.Controls.Add(this.TargetsNumber_text);
@@ -206,6 +233,7 @@ namespace reflex_training
             ((System.ComponentModel.ISupportInitialize)(this.RoundTime_UpDown)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.TargetsNumber_UpDown)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.TargetLifetime_UpDown)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.TargetAddTime_UpDown)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -226,5 +254,7 @@ namespace reflex_training
         private System.Windows.Forms.Label TargetsNumber_text;
         private System.Windows.Forms.NumericUpDown TargetLifetime_UpDown;
         private System.Windows.Forms.Label TargetLifetime_text;
+        private System.Windows.Forms.Label TargetAddTime_text;
+        private System.Windows.Forms.NumericUpDown TargetAddTime_UpDown;
     }
 }

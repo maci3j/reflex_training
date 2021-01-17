@@ -8,9 +8,19 @@ using System.IO;
 
 namespace reflex_training
 {
+    /// <summary>
+    /// FileLogger object definition.
+    /// </summary>
     class FileLogger
     {
         private ReaderWriterLockSlim lock_ = new ReaderWriterLockSlim();
+        
+        /// <summary>
+        /// This method enables writes to the file in queue-way, without locking up.
+        /// </summary>
+        /// <param name="path">Path to the file</param>
+        /// <param name="format"></param>
+        /// <param name="args"></param>
         public void WriteData(string path, string format, params object[] args)
         {
             lock_.EnterWriteLock();

@@ -87,7 +87,7 @@
             // 
             // pause_button
             // 
-            this.pause_button.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.pause_button.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.pause_button.Location = new System.Drawing.Point(590, 382);
             this.pause_button.Name = "pause_button";
             this.pause_button.Size = new System.Drawing.Size(75, 23);
@@ -154,7 +154,7 @@
             this.Controls.Add(this.hit_text);
             this.Controls.Add(this.main_board);
             this.Name = "GameForm";
-            this.Text = "Form1";
+            this.Text = "ReflexTraining";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.GameForm_FormClosing);
             this.Resize += new System.EventHandler(this.GameForm_Resize);
             this.ResumeLayout(false);

@@ -9,6 +9,9 @@ using System.Windows.Forms;
 
 namespace reflex_training
 {
+    /// <summary>
+    /// GameType enumerator.
+    /// </summary>
     enum GameType
     {
         None,
@@ -17,8 +20,28 @@ namespace reflex_training
         ScoreTrial
     }
 
+    /// <summary>
+    /// Definition of the Game object.
+    /// </summary>
     class Game
     {
+        /// <summary>
+        /// Time elapsed from start of the round.
+        /// </summary>
+        public TimeSpan ElapsedTime { get; private set; }
+        /// <summary>
+        /// Time length of the current frame.
+        /// </summary>
+        public TimeSpan ticktime { get; private set; }
+        /// <summary>
+        /// Mutex used to synchronize operations.
+        /// </summary>
+        public Mutex TargetsMutex = new Mutex(); // multithreaded operations on target list have to be synchronized to avoid data corruption
+        /// <summary>
+        /// Frame per second counter.
+        /// </summary>
+        public int Fps { get; private set; } = 30;
+
         bool state;
         int hits = 0;
         int misses = 0;
@@ -31,12 +54,8 @@ namespace reflex_training
         int max_y;
         int TickCount;
         TimeSpan SecondCount;
-        public TimeSpan ElapsedTime { get; private set; }
         TimeSpan TimeToEnd;
-        public TimeSpan ticktime { get; private set; }
         List<int> ticktimes = new List<int>();
-        public Mutex TargetsMutex = new Mutex(); // multithreaded operations on target list have to be synchronized to avoid data corruption
-        public int Fps { get; private set; } = 30;
         bool MovingTargets;
         bool ResizableTargets;
         int TargetSize = 10;
@@ -46,9 +65,20 @@ namespace reflex_training
         int TargetsGone;
         TimeSpan TargetAddTime;
         TimeSpan TargetAddDelta;
+        GameForm gf1;
 
         Stopwatch sw = new Stopwatch();
 
+        /// <summary>
+        /// Game constructor.
+        /// </summary>
+        /// <param name="type">Type of the game - see GameType</param>
+        /// <param name="TimeToEnd">Round length</param>
+        /// <param name="MovingTargets">Set if the targets should be moving</param>
+        /// <param name="ResizableTargets">Set if the targets should change their sizes</param>
+        /// <param name="TargetLifetime">Time to target self-destroy, in ticks</param>
+        /// <param name="StartingTargets">Amout of targets created at start of the round</param>
+        /// <param name="TargetAddTime">Time interval after which the new target will be created</param>
         public Game(GameType type, TimeSpan TimeToEnd, bool MovingTargets, bool ResizableTargets, int TargetLifetime, int StartingTargets, TimeSpan TargetAddTime)
         {
             Program.Debug(LogLevel.Error, "Game initialized, type: {0}, TimeToEnd: {1}, MovingTargets: {2}, ResizableTargets: {3}, TargetLifetime: {4}, StartingTargets: {5}, TargetAddTime: {6}", 
@@ -67,9 +97,13 @@ namespace reflex_training
             }
         }
 
+        /// <summary>
+        /// Main loop of the game.
+        /// </summary>
+        /// <param name="gf">GameForm object</param>
         public void GameLoop(object gf)
         {
-            GameForm gf1 = (GameForm)gf;
+            gf1 = (GameForm)gf;
             Program.game.TargetsMutex.WaitOne();
             for(int i = 0; i<StartingTargets; i++)
             {
@@ -88,16 +122,16 @@ namespace reflex_training
                 last_time += delta;
                 update_time += delta;
 
-                if((sw.Elapsed.Seconds - SecondCount.Seconds) >= 1)
+                if((sw.Elapsed - SecondCount).Seconds >= 1)
                 {
-                    if ((sw.Elapsed.Seconds - SecondCount.Seconds) < 2) // if more than 2 seconds elapsed, something gone wrong with time measurement - do not update then
+                    if ((sw.Elapsed - SecondCount).Seconds < 2) // if more than 2 seconds elapsed, something gone wrong with time measurement - do not update then
                     {
                         SecondTimer(); // execute method every one second
                     }
                     SecondCount = sw.Elapsed;
                 }
 
-                if (type == GameType.TimeTrial)
+                if (type == GameType.ScoreTrial)
                 {
                     if ((sw.Elapsed - TargetAddDelta) >= TargetAddTime)
                     {
@@ -137,11 +171,19 @@ namespace reflex_training
             }
         }
 
+        /// <summary>
+        /// Returns list of targets currently on board.
+        /// </summary>
+        /// <returns>List of targets</returns>
         public List<Target> GetTargets()
         {
             return targets;
         }
 
+        /// <summary>
+        /// Updates the board.
+        /// </summary>
+        /// <param name="form">Current GameForm</param>
         void UpdateBoard(GameForm form)
         {
             if (form.InvokeRequired)
@@ -152,6 +194,9 @@ namespace reflex_training
             form.UpdateBoard();
         }
 
+        /// <summary>
+        /// Makes per-game-tick targets update.
+        /// </summary>
         void UpdateTargets()
         {
             List<Target> ToBeRemoved = new List<Target>();
@@ -166,7 +211,7 @@ namespace reflex_training
                 {
                     t.Resize();
                 }
-                if(t.LifeTime>t.TimeToDestroy && type == GameType.TimeTrial)
+                if(t.LifeTime>t.TimeToDestroy && type == GameType.ScoreTrial)
                 {
                     Program.Debug(LogLevel.Info, "Removing expired target, lifetime:{0}, timetodestroy: {1}", t.LifeTime, t.TimeToDestroy);
                     TargetsGone++;
@@ -177,13 +222,13 @@ namespace reflex_training
 
             foreach (Target t in ToBeRemoved)
             {
-                if ((targets.Count - ToBeRemoved.Count) <= 0 && type == GameType.TimeTrial)
+                if ((targets.Count - ToBeRemoved.Count) <= 0 && type == GameType.ScoreTrial)
                 {
                     EndGame();
                     break;
                 }
                 targets.Remove(t);
-                if(type == GameType.ScoreTrial)
+                if(type == GameType.TimeTrial)
                 {
                     AddTarget();
                 }
@@ -191,10 +236,13 @@ namespace reflex_training
             TargetsMutex.ReleaseMutex();
         }
 
+        /// <summary>
+        /// Method executed every second.
+        /// </summary>
         void SecondTimer()
         {
             Fps = TickCount;
-            ElapsedTime += TimeSpan.FromSeconds(1);
+            ElapsedTime = ElapsedTime.Add(TimeSpan.FromSeconds(1));
             Program.Debug(LogLevel.Info, "Ticks per second: {0}", TickCount);
             Program.Debug(LogLevel.Info, "Average ticktime: {0} ms", ticktimes.Average());
             Program.Debug(LogLevel.Info, "Elapsed time: {0} seconds", ElapsedTime.Seconds);
@@ -207,33 +255,53 @@ namespace reflex_training
             }
         }
 
+        /// <summary>
+        /// Creates new target.
+        /// </summary>
         public void AddTarget()
         {
             targets.Add(new Target(MovingTargets, ResizableTargets, TargetLifetime));
         }
 
+        /// <summary>
+        /// Adds hit made in current round.
+        /// </summary>
         public void AddHit()
         {
             hits++;
             Program.Debug(LogLevel.Info, "Target hit, current score: {0}", hits);
         }
 
+        /// <summary>
+        /// Returns amount of hits made in current round.
+        /// </summary>
+        /// <returns>Number of hits</returns>
         public int GetHits()
         {
             return hits;
         }
 
+        /// <summary>
+        /// Adds miss made in current round.
+        /// </summary>
         public void AddMiss()
         {
             misses++;
             Program.Debug(LogLevel.Info, "Miss, current misses: {0}", misses);
         }
 
+        /// <summary>
+        /// Returns amount of misses made in current round.
+        /// </summary>
+        /// <returns>Number of misses</returns>
         public int GetMisses()
         {
             return misses;
         }
 
+        /// <summary>
+        /// Resumes game after pause.
+        /// </summary>
         public void Start()
         {
             if (!HardPause)
@@ -249,17 +317,29 @@ namespace reflex_training
             }
         }
 
+        /// <summary>
+        /// Pauses game.
+        /// </summary>
         public void Pause()
         {
             state = false;
             Program.Debug(LogLevel.Error, "Game paused");
         }
 
+        /// <summary>
+        /// Returns current game state.
+        /// </summary>
+        /// <returns>State of the game</returns>
         public bool Running()
         {
             return state;
         }
 
+        /// <summary>
+        /// Handles operations related with hit detection.
+        /// </summary>
+        /// <param name="x">X coordinate of click</param>
+        /// <param name="y">Y coordinate of click</param>
         public void ClickHandler(int x, int y)
         {
             if (Running()) // click should be registered only when game is running
@@ -273,9 +353,10 @@ namespace reflex_training
                     if (t.IsHit(x, y))
                     {
                         hit = true;
+                        click.TargetLiveTime = TimeSpan.FromMilliseconds(t.LifeTime*(1000/30.0));
                         targets.Remove(t);
                         AddHit();
-                        if (type == GameType.ScoreTrial || type == GameType.Training)
+                        if (type == GameType.TimeTrial || type == GameType.Training)
                         {
                             AddTarget();
                         }
@@ -296,18 +377,68 @@ namespace reflex_training
             }
         }
 
+        /// <summary>
+        /// Ends current round.
+        /// </summary>
         void EndGame()
         {
             Pause();
             HardPause = true;
             Program.Debug(LogLevel.Error, "Game ended, hits: {0}, misses: {1}", clicks.Where(x => x.Score).Count(), clicks.Where(x => !x.Score).Count());
-
+            String clicks_str = "";
+            String clicks_stats = "";
+            int index = 0;
             foreach(Click c in clicks)
             {
-                Program.Debug(LogLevel.Error, "Click x:{0}, y:{1}, hit: {2}, distance to nearest target: {3}, target lifetime: {4}", c.X, c.Y, c.Score, c.Distance, c.TargetLiveTime);
+                index++;
+                clicks_str += String.Format("Click x:{0}, y:{1}, hit: {2}, distance to nearest target: {3}, target lifetime: {4}\n",
+                                                c.X,
+                                                c.Y,
+                                                c.Score,
+                                                c.Distance,
+                                                c.TargetLiveTime
+                                           );
+                clicks_stats += String.Format("Strzał#{0} x:{1}, y:{2}, trafienie: {3}{4}{5}\n",
+                                                index,
+                                                c.X,
+                                                c.Y,
+                                                (c.Score ? "Tak":"Nie"),
+                                                (!c.Score ? String.Format(", dystans do najbliższego celu: {0}", c.Distance) : ""),
+                                                (c.TargetLiveTime != TimeSpan.FromTicks(0) ? String.Format(", czas życia celu: {0}", c.TargetLiveTime) : "")
+                                             );
+            }
+            Program.Debug(LogLevel.Error, clicks_str);
+            FileLogger fl;
+            fl = new FileLogger();
+            string text = String.Format("Czas gry: {0}\nTrafienia: {1}\nChybienia: {2}\nCelność: {3}%",
+                                            ElapsedTime,
+                                            GetHits(),
+                                            GetMisses(),
+                                            ((Program.game.GetHits() != 0 || Program.game.GetMisses() != 0) ? 100 * Program.game.GetHits() / (Program.game.GetHits() + Program.game.GetMisses()) : 0)
+                                        );
+            Task.Run(() => fl.WriteData(String.Format("{0}.txt", DateTime.Now.ToString("dd_MM_yyyy_HH-mm-ss")),
+                                            "Data: {0}\nTryb gry: {1}\n{2}{3}{4}{5}{6}{7}\n{8}",
+                                                DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss"),
+                                                type.ToString(),
+                                                String.Format("Poruszające się cele: {0}\n", MovingTargets ? "Tak" : "Nie"), 
+                                                type == GameType.ScoreTrial ? (String.Format("Zmieniające wielkość cele: {0}\n", ResizableTargets ? "Tak" : "Nie")) : "", 
+                                                type == GameType.ScoreTrial ? String.Format("Czas życia celu: {0}\n", TimeSpan.FromMilliseconds(TargetLifetime*(1000/30.0))) : "", 
+                                                String.Format("Ilość celów na start: {0}\n", StartingTargets),
+                                                type == GameType.ScoreTrial ? String.Format("Czas pojawiania się kolejnych celów: {0}\n", TargetAddTime) : "",
+                                                text,
+                                                clicks_stats
+                                       ));
+
+            var box = MessageBox.Show(text, "Koniec gry!", MessageBoxButtons.OK);
+            if(box == DialogResult.OK)
+            {
+                gf1.ShowMenu();
             }
         }
 
+        /// <summary>
+        /// Game object destructor.
+        /// </summary>
         ~Game()
         {
             Program.Debug(LogLevel.Error, "GameObject destroyed");
