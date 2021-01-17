@@ -5,7 +5,7 @@
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{BDEA558B-0F70-4C8D-A70D-15D9B22461BE}</ProjectGuid>
-    <OutputType>Exe</OutputType>
+    <OutputType>WinExe</OutputType>
     <RootNamespace>reflex_training</RootNamespace>
     <AssemblyName>reflex_training</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>

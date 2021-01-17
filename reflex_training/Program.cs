@@ -36,7 +36,7 @@ namespace reflex_training
         [STAThread]
         static void Main()
         {
-            LogLevel = LogLevel.Info;
+            LogLevel = LogLevel.Error;
 
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);

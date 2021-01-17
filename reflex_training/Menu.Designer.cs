@@ -203,7 +203,7 @@ namespace reflex_training
             this.TargetAddTime_UpDown.Size = new System.Drawing.Size(65, 20);
             this.TargetAddTime_UpDown.TabIndex = 15;
             this.TargetAddTime_UpDown.Value = new decimal(new int[] {
-            5,
+            1,
             0,
             0,
             0});

@@ -215,23 +215,9 @@ namespace reflex_training
                 {
                     Program.Debug(LogLevel.Info, "Removing expired target, lifetime:{0}, timetodestroy: {1}", t.LifeTime, t.TimeToDestroy);
                     TargetsGone++;
-                    ToBeRemoved.Add(t);
+                    EndGame();
                 }
                 t.LifeTime++;
-            }
-
-            foreach (Target t in ToBeRemoved)
-            {
-                if ((targets.Count - ToBeRemoved.Count) <= 0 && type == GameType.ScoreTrial)
-                {
-                    EndGame();
-                    break;
-                }
-                targets.Remove(t);
-                if(type == GameType.TimeTrial)
-                {
-                    AddTarget();
-                }
             }
             TargetsMutex.ReleaseMutex();
         }
